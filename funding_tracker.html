@@ -46,6 +46,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:
 .chip.status-open{background:#1a3a6b;color:#fff;border-color:#1a3a6b}
 .chip.status-monitor{background:#7a5c00;color:#fff;border-color:#7a5c00}
 .chip.status-closed{background:#5a5a54;color:#fff;border-color:#5a5a54}
+.chip.status-radar{background:#4a2d6b;color:#fff;border-color:#4a2d6b}
 .sep{width:1px;height:20px;background:var(--paper3);margin:0 4px;flex-shrink:0}
 
 .content{padding:20px 24px;min-height:400px}
@@ -103,6 +104,14 @@ td.amt{font-family:var(--mono);font-size:12px;white-space:nowrap}
 td.tags-cell{max-width:200px}
 .tbl-tags{display:flex;flex-wrap:wrap;gap:3px}
 .empty{text-align:center;padding:60px 20px;color:var(--ink3);font-family:var(--mono);font-size:13px}
+
+/* SECTION HEADERS */
+.section-header{display:flex;align-items:center;gap:10px;padding:16px 0 10px;border-bottom:2px solid var(--ink);margin-bottom:4px}
+.tbl-section-header{display:flex;align-items:center;gap:10px;padding:16px 0 10px;border-bottom:2px solid var(--ink);margin-bottom:0}
+.section-icon{font-size:14px;color:var(--ink2)}
+.section-label{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--ink)}
+.section-count{font-family:var(--mono);font-size:11px;color:var(--ink3);margin-left:auto}
+.section-divider{height:32px}
 </style>
 </head>
 <body>
@@ -149,7 +158,15 @@ const STATUS_OPTS = [
   {val:'all', label:'All'},
   {val:'Open now', label:'Open now'},
   {val:'Monitoring for future rounds', label:'Monitoring for future rounds'},
-  {val:'Closed - pending awards', label:'Closed — pending awards'},
+  {val:'Closed - pending award announcements', label:'Closed — pending award announcements'},
+  {val:'On radar', label:'On radar'},
+];
+
+const SECTIONS = [
+  {key:'Open now', label:'Open Grants', icon:'●'},
+  {key:'Monitoring for future rounds', label:'Anticipated Upcoming Rounds', icon:'◐'},
+  {key:'Closed - pending award announcements', label:'Monitoring — Pending Award Announcements', icon:'○'},
+  {key:'On radar', label:'On Radar', icon:'◌'},
 ];
 
 const ELIG_OPTS = [
@@ -221,7 +238,7 @@ const raw = [
     nofoUrl:'',
     govtElig:'TBD', total:100000000, award:'TBD',
     appOpen:'', close:'', announced:'', future:'TBD',
-    status:'Monitoring for future rounds',
+    status:'On radar',
     note:'Initiative announced but no details on funding yet',
     topics:['futureWork']
   },
@@ -242,8 +259,40 @@ const raw = [
     nofoUrl:'https://drive.google.com/file/d/1Ho_GHh2NNTCUP8P1ayXjI_ZidiBf_WYQ/view',
     govtElig:'As lead', total:10000000, award:'Up to $500k seed; $500k–$2M pilots',
     appOpen:'2026-04-13', close:'2026-05-15', announced:'', future:'',
-    status:'Closed - pending awards',
+    status:'Closed - pending award announcements',
     note:'OFI part of 2 applications — led by Code for America and ITO Health',
+    topics:['govtOps']
+  },
+  {
+    org:'Jobs for the Future', opp:'Advancing AI-Resilient Early-Career Pathways', type:'Philanthropy',
+    desc:'JFF is launching an initiative to identify, pilot, and learn from innovative models that support early-career workers in an AI-transformed labor market and help ensure AI leads to quality jobs for all.',
+    url:'https://info.jff.org/advancing-ai-resilient-early-career-pathways',
+    nofoUrl:'https://info.jff.org/hubfs/Advancing%20AI-Resilient%20Early-Career%20Pathways%20RFP.pdf',
+    govtElig:'As partner', total:600000, award:'$50k–$100k',
+    appOpen:'2026-02-06', close:'2026-02-25', announced:'', future:'TBD',
+    status:'Monitoring for future rounds',
+    note:'Monitor for upcoming rounds (anticipated TBD)',
+    topics:['futureWork']
+  },
+  {
+    org:'US Department of Education', opp:'Connecting Talent to Opportunity', type:'Federal',
+    desc:'A $15 million prize competition to strengthen connections between learners, education and training providers, and employers by fostering the development of integrated Talent Marketplaces.',
+    url:'https://www.cto-challenge.com/', nofoUrl:'',
+    govtElig:'As lead', total:15000000, award:'Up to $100k (Phase 1), $400k (Phase 2), $1M (Phase 3)',
+    appOpen:'2025-12-12', close:'2026-04-30', announced:'', future:'TBD',
+    status:'Monitoring for future rounds',
+    note:'Monitor for upcoming rounds (anticipated TBD)',
+    topics:['aiLit','futureWork']
+  },
+  {
+    org:'Rockefeller Foundation', opp:'AI Readiness Project', type:'Philanthropy',
+    desc:'A national initiative to help governments build the capacity, confidence, and shared infrastructure they need to use AI responsibly in public service. No direct funding — provides technical assistance for government leaders.',
+    url:'https://www.rockefellerfoundation.org/news/rockefeller-foundation-and-center-for-civic-futures-launch-ai-readiness-project-to-build-state-capacity-for-responsible-ai/',
+    nofoUrl:'',
+    govtElig:'As lead', total:0, award:'Technical assistance only (no grants)',
+    appOpen:'', close:'', announced:'', future:'',
+    status:'On radar',
+    note:'Monitor for updates — TA program for govt leaders, not a grant',
     topics:['govtOps']
   }
 ];
@@ -266,7 +315,8 @@ function fmtDate(d){
 
 function statusPill(s){
   if(s==='Open now') return `<span class="status-pill sp-open">Open now</span>`;
-  if(s==='Closed - pending awards') return `<span class="status-pill sp-closed">Closed — pending awards</span>`;
+  if(s==='Closed - pending award announcements') return `<span class="status-pill sp-closed">Closed — pending awards</span>`;
+  if(s==='On radar') return `<span class="status-pill" style="background:var(--purple-bg);color:var(--purple);border:1px solid #d4c8ec">On radar</span>`;
   return `<span class="status-pill sp-monitor">Monitoring</span>`;
 }
 
@@ -313,7 +363,8 @@ function renderFilters(){
       if(val==='all') cls=' on';
       else if(val==='Open now') cls=' status-open';
       else if(val==='Monitoring for future rounds') cls=' status-monitor';
-      else cls=' status-closed';
+      else if(val==='Closed - pending award announcements') cls=' status-closed';
+      else if(val==='On radar') cls=' status-radar';
     }
     return `<button class="chip${cls}" onclick="setStatus('${val}')">${label}</button>`;
   }).join('');
@@ -327,39 +378,57 @@ function renderFilters(){
   `;
 }
 
+function renderCard(d){
+  const topicTags = d.topics.map(t=>`<span class="tag">${topicLabel(t)}</span>`).join('');
+  return `<div class="card">
+    <div class="card-top">
+      <div class="org-name">${d.org}</div>
+      <span class="type-badge ${d.type==='Federal'?'badge-fed':'badge-phil'}">${d.type}</span>
+    </div>
+    <div class="card-title">${d.opp}</div>
+    <div class="card-desc">${d.desc}</div>
+    <div class="card-tags">${topicTags}</div>
+    <div class="card-footer">
+      <div>
+        <div class="funding-amt">${fmtMoney(d.total)}</div>
+        ${d.award?`<div class="award-detail">${d.award}</div>`:''}
+      </div>
+      <div style="text-align:right">
+        ${d.close?`<div style="font-family:var(--mono);font-size:10px;color:var(--ink3)">Close: ${fmtDate(d.close)}</div>`:''}
+      </div>
+    </div>
+    <div class="card-pills">
+      ${eligPill(d.govtElig)}
+    </div>
+    ${d.note?`<div class="card-note">${d.note}</div>`:''}
+    <div class="card-bottom">
+      <a href="${d.url}" target="_blank" class="card-link">View opportunity ↗</a>
+      ${d.nofoUrl?`<a href="${d.nofoUrl}" target="_blank" class="card-link">NOFO ↗</a>`:''}
+    </div>
+  </div>`;
+}
+
 function renderCards(data){
   const el = document.getElementById('cards-view');
   if(!data.length){el.innerHTML=`<div class="empty" style="grid-column:1/-1">No opportunities match your filters.</div>`;return;}
-  el.innerHTML = data.map(d=>{
-    const topicTags = d.topics.map(t=>`<span class="tag">${topicLabel(t)}</span>`).join('');
-    return `<div class="card">
-      <div class="card-top">
-        <div class="org-name">${d.org}</div>
-        <span class="type-badge ${d.type==='Federal'?'badge-fed':'badge-phil'}">${d.type}</span>
-      </div>
-      <div class="card-title">${d.opp}</div>
-      <div class="card-desc">${d.desc}</div>
-      <div class="card-tags">${topicTags}</div>
-      <div class="card-footer">
-        <div>
-          <div class="funding-amt">${fmtMoney(d.total)}</div>
-          ${d.award?`<div class="award-detail">${d.award}</div>`:''}
-        </div>
-        <div style="text-align:right">
-          ${d.close?`<div style="font-family:var(--mono);font-size:10px;color:var(--ink3)">Close: ${fmtDate(d.close)}</div>`:''}
-        </div>
-      </div>
-      <div class="card-pills">
-        ${statusPill(d.status)}
-        ${eligPill(d.govtElig)}
-      </div>
-      ${d.note?`<div class="card-note">${d.note}</div>`:''}
-      <div class="card-bottom">
-        <a href="${d.url}" target="_blank" class="card-link">View opportunity ↗</a>
-        ${d.nofoUrl?`<a href="${d.nofoUrl}" target="_blank" class="card-link">NOFO ↗</a>`:''}
-      </div>
+  // When a single status is filtered, just show flat grid; otherwise show sections
+  if(filters.status !== 'all'){
+    el.innerHTML = data.map(renderCard).join('');
+    return;
+  }
+  let html = '';
+  SECTIONS.forEach(sec=>{
+    const group = data.filter(d=>d.status===sec.key);
+    if(!group.length) return;
+    html += `<div class="section-header" style="grid-column:1/-1">
+      <span class="section-icon">${sec.icon}</span>
+      <span class="section-label">${sec.label}</span>
+      <span class="section-count">${group.length}</span>
     </div>`;
-  }).join('');
+    html += group.map(renderCard).join('');
+    html += `<div class="section-divider" style="grid-column:1/-1"></div>`;
+  });
+  el.innerHTML = html;
 }
 
 function renderTable(data){
@@ -368,23 +437,43 @@ function renderTable(data){
   const cols = [
     {k:'org',label:'Org'},{k:'opp',label:'Opportunity'},{k:'total',label:'Funding'},
     {k:'award',label:'Award'},{k:'close',label:'Close Date'},
-    {k:'govtElig',label:'Govt Role'},{k:'status',label:'Status'},{k:'topics',label:'Topics'}
+    {k:'govtElig',label:'Govt Role'},{k:'topics',label:'Topics'}
   ];
   const head = cols.map(c=>`<th onclick="doSort('${c.k}')" class="${sortCol===c.k?'sorted':''}">${c.label}<span class="sort-ind">${sortCol===c.k?(sortDir>0?'↑':'↓'):'↕'}</span></th>`).join('');
-  const rows = data.map(d=>{
-    const tags = d.topics.map(t=>`<span class="tag">${topicLabel(t)}</span>`).join('');
-    return `<tr>
-      <td class="org">${d.org}</td>
-      <td class="opp"><a href="${d.url}" target="_blank" style="color:var(--ink);text-decoration:none">${d.opp}</a></td>
-      <td class="amt">${fmtMoney(d.total)}</td>
-      <td>${d.award||'—'}</td>
-      <td style="font-family:var(--mono);font-size:11px;white-space:nowrap">${fmtDate(d.close)}</td>
-      <td>${eligPill(d.govtElig)}</td>
-      <td>${statusPill(d.status)}</td>
-      <td class="tags-cell"><div class="tbl-tags">${tags}</div></td>
-    </tr>`;
-  }).join('');
-  el.innerHTML=`<table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+
+  function makeRows(group){
+    return group.map(d=>{
+      const tags = d.topics.map(t=>`<span class="tag">${topicLabel(t)}</span>`).join('');
+      return `<tr>
+        <td class="org">${d.org}</td>
+        <td class="opp"><a href="${d.url}" target="_blank" style="color:var(--ink);text-decoration:none">${d.opp}</a></td>
+        <td class="amt">${fmtMoney(d.total)}</td>
+        <td>${d.award||'—'}</td>
+        <td style="font-family:var(--mono);font-size:11px;white-space:nowrap">${fmtDate(d.close)}</td>
+        <td>${eligPill(d.govtElig)}</td>
+        <td class="tags-cell"><div class="tbl-tags">${tags}</div></td>
+      </tr>`;
+    }).join('');
+  }
+
+  if(filters.status !== 'all'){
+    el.innerHTML=`<table><thead><tr>${head}</tr></thead><tbody>${makeRows(data)}</tbody></table>`;
+    return;
+  }
+
+  let html = '';
+  SECTIONS.forEach(sec=>{
+    const group = data.filter(d=>d.status===sec.key);
+    if(!group.length) return;
+    html += `<div class="tbl-section-header">
+      <span class="section-icon">${sec.icon}</span>
+      <span class="section-label">${sec.label}</span>
+      <span class="section-count">${group.length}</span>
+    </div>
+    <table><thead><tr>${head}</tr></thead><tbody>${makeRows(group)}</tbody></table>
+    <div style="height:24px"></div>`;
+  });
+  el.innerHTML = html;
 }
 
 function renderStats(){
